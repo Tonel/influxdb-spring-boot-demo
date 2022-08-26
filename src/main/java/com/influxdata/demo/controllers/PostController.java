@@ -23,6 +23,7 @@ public class PostController {
     @GetMapping()
     public ResponseEntity<List<Post>> getAll() {
         return new ResponseEntity<>(
+                // retrieving all posts
                 postRepository.findAll(),
                 HttpStatus.CREATED
         );
@@ -32,12 +33,13 @@ public class PostController {
     public ResponseEntity<Void> create(
             @RequestBody PostRequest postRequest
     ) {
+        // create logic
         Post postToCreate = new Post();
         postToCreate.setUrl(postRequest.getUrl());
         postToCreate.setAuthorEmail(postRequest.getAuthorEmail());
 
         Post post = postRepository.save(postToCreate);
-
+        // logging the initial post request status with Micrometer
         Counter counter = Metrics.counter(
                 "request.posts",
                 "postId",
@@ -55,12 +57,13 @@ public class PostController {
             @PathVariable(value = "id") Long id,
             @RequestBody PostRequest postRequest
     ) {
+        // update logic
         Post postToUpdate = postRepository.findById(id).get();
         postToUpdate.setUrl(postRequest.getUrl());
         postToUpdate.setAuthorEmail(postRequest.getAuthorEmail());
-
         postRepository.save(postToUpdate);
 
+        // logging the new post request status with Micrometer
         Counter counter = Metrics.counter(
                 "request.posts",
                 "postId",
@@ -77,8 +80,10 @@ public class PostController {
     public ResponseEntity<Void> delete(
             @PathVariable(value = "id") Long id
     ) {
+        // delete logic
         postRepository.deleteById(id);
 
+        // logging the new post request status with Micrometer
         Counter counter = Metrics.counter(
                 "request.posts",
                 "postId",
